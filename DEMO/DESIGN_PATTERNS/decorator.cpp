@@ -49,11 +49,6 @@ class Latte:public coffee{
 		int get_price(){return price;}
 };
 
-
-
-
-
-
 int main()
 {
 	coffee *e = new Expresso();
