@@ -24,22 +24,26 @@ class PlayerState{
     virtual estate takeMedi(){}
 };
 
+static HealthStateFactory factory;
+
 class Player{
     PlayerState *healthState;
-    HealthStateFactory *factory;
+    //HealthStateFactory *factory;
     public:
     void run(){healthState->run();}
     void fire(){healthState->fire();}
     void jump(){healthState->jump();}
     void takeMedi()
     {
-	    healthState = factory->getHealth(healthState->takeMedi());
+	    healthState = factory.getHealth(CHARGED);//healthState->takeMedi());
     }
     void attacked()
     {
-	    healthState = factory->getHealth(healthState->attacked());
+	    healthState = factory.getHealth(healthState->attacked());
     }
-    Player(){factory = new HealthStateFactory();  healthState = factory->getHealth(NORMAL);}
+    //Player(){factory = new HealthStateFactory();  healthState = factory->getHealth(NORMAL);}
+    Player():healthState(factory.getHealth(NORMAL))
+	{}
 };
 
 class Normal:public PlayerState{
@@ -51,7 +55,7 @@ class Normal:public PlayerState{
     Normal(){name=NORMAL;}
     estate attacked()
     {
-	    return DEFENSIVE;
+	    return DEFENCIVE;
     }
     estate takeMedi(){return CHARGED;}
 };
@@ -120,7 +124,7 @@ class HealthStateFactory{
 			//  def = new 
 			switch(s){
 				case NORMAL:
-					return  new Normal;
+					return  new Normal();
 				case CHARGED:
 					return new Charged();
 				case DEFENCIVE:
