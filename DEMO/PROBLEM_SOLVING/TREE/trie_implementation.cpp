@@ -1,5 +1,5 @@
 #include<iostream>
-
+#include<deque>
 using namespace std;
 
 #define null NULL
@@ -49,6 +49,7 @@ TrieNode* insertAllCharacterAsChildNodes(TrieNode *trie, char keys[])
 		trie->child = new TrieNode(keys[i]);
 		trie=trie->child;
 	}
+	trie->value = 1;
 	return trie;
 }
 
@@ -81,6 +82,8 @@ void add(TrieNode* trie, char keys[])
 		}
 	}
 	else{
+		if(trie->alphabet == keys[0] && keys[1] == '\0')
+			trie->value = 1;
 		TrieNode* foundNode = sameLevelSearch(trie,keys[0]);
 		if(foundNode)
 		{
@@ -129,12 +132,82 @@ void print(TrieNode *t)
 	print(t->child);
 }
 
+void printAllChild(TrieNode* t, deque<char> q)
+{
+	if(!t)
+		return;
+	q.push_back(t->alphabet);
+	if(t->value == 1 && t->child != 0)//last node
+	{
+		//print deque
+		deque<char> q1 = q;
+		while(!q1.empty())
+		{
+			cout<<q1.front()<<"-";
+			q1.pop_front();
+		}
+		cout<<endl;
+	}
+	else if(t->value == 1)
+	{
+		int s = q.size();
+		for(int i =0 ; i<s ; i++ )
+		{
+			cout<<q.front()<<"-";
+			q.pop_front();
+		}
+		cout<<endl;
+		return;
+	}
+	printAllChild(t->child, q);
+	//deque<char> temp;
+	if(t->next != 0 && t->next->alphabet != '\0')
+	{
+		q.pop_back();
+		printAllChild(t->next,q);
+	}
+}
+
+void display(TrieNode *t)
+{
+	if(!t)
+		return;
+	static deque<char> q;
+	q.push_back(t->alphabet);
+	printAllChild(t->child,q);
+	//traverseNext(t->next);
+	//display(t->child->next);
+}
+
+int isExsist(TrieNode* t, char keys[])
+{
+	if(!t)
+		return 0;
+	if(t->alphabet != '.') //not a root
+		return 0;
+	for(int i=0; keys[i]!='\0'; i++)
+	{
+		
+		TrieNode* node = sameLevelSearch(t->child,keys[i]);
+		if(node == 0)
+			return 0;
+		else if(node->value == 1 && keys[i+1] == '\0')
+			return 1;
+		else
+			t=node;
+	}
+	return 0;
+}
+
+
 int main()
 {
 	TrieNode* Trie = new TrieNode();
 	add(Trie,"shas");
-	add(Trie,"shvish");
+	add(Trie,"shvhn");
+	add(Trie,"shvh");
 	add(Trie,"shashank");
+	add(Trie,"shash");
 	add(Trie,"abc");
 	add(Trie,"xyz");
 	add(Trie,"abcdef");
@@ -142,5 +215,31 @@ int main()
 	add(Trie,"rose");
 	add(Trie,"kerala");
 	add(Trie,"kerALA");
-	print(Trie);
+	//print(Trie);
+	display(Trie);
+	if(isExsist(Trie,"shash"))
+		cout<<"shash Found"<<endl;
+	else
+		cout<<"Not found\n";
+
 }
+/*
+.-s-h-a-s-
+.-s-h-a-s-h-
+.-s-h-a-s-h-a-n-k-
+.-s-h-a-s-a-b-c-d-
+.-s-h-v-h-
+.-s-h-v-h-n-
+.-a-b-c-
+.-a-b-c-d-e-f-
+.-x-y-z-
+.-r-o-s-e-
+.-k-e-r-a-l-a-
+.-k-e-r-A-L-A-
+shash Found
+
+
+*/
+
+
+
