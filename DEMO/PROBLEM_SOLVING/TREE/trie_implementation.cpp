@@ -3,6 +3,7 @@
 using namespace std;
 
 #define null NULL
+static int totoal_count;
 
 class TrieNode{
 	public:
@@ -18,7 +19,7 @@ class TrieNode{
 	}
 	TrieNode(char ch)
 	{
-		this->alphabet = ch;
+		alphabet = ch;
 	        next=null;
        		child = null;	       
 	}
@@ -55,9 +56,11 @@ TrieNode* insertAllCharacterAsChildNodes(TrieNode *trie, char keys[])
 
 void add(TrieNode* trie, char keys[])
 {
-	if(!trie) 
+	if(!trie)
+	{
 		return;
-	if(trie->alphabet == '.' && trie->child == 0)
+	}
+	if(trie->alphabet == '.' && !(trie->child))
 	{
 		trie->child = new TrieNode(keys[0]);
 		insertAllCharacterAsChildNodes(trie->child, keys+1);
@@ -71,19 +74,26 @@ void add(TrieNode* trie, char keys[])
 			TrieNode* foundNode = sameLevelSearch(trie->child,keys[i]);
 			if(foundNode)
 			{
-				add(foundNode->child,(keys+i+1));
+				if((foundNode->child != 0) )//|| (keys+1) != '\0')
+				{
+					if(keys[1] != '\0')
+						add(foundNode->child,(keys+1));
+					else
+						foundNode->value = 1;
+				}
+				else
+					insertAllCharacterAsChildNodes(foundNode,keys+1);
 			}else{
 				TrieNode* t= trie->child;
 				while(t->next != 0)
 					t = t->next;
 				t->next = new TrieNode(keys[0]);
+
 				insertAllCharacterAsChildNodes(t->next,keys+1);
 			}
 		}
 	}
-	else{
-		if(trie->alphabet == keys[0] && keys[1] == '\0')
-			trie->value = 1;
+	else if(keys[0] != '\0'){
 		TrieNode* foundNode = sameLevelSearch(trie,keys[0]);
 		if(foundNode)
 		{
@@ -96,7 +106,13 @@ void add(TrieNode* trie, char keys[])
 			trie->next = new TrieNode(keys[0]);
 			insertAllCharacterAsChildNodes(trie->next,(keys+1));
 		}
+		if(trie->alphabet == keys[0] && keys[1] == '\0')
+			trie->value = 1;
 	}
+//	else if(keys[0] == '\0')
+//		trie->value = 1;
+	else
+		return;
 }
 
 
@@ -139,6 +155,7 @@ void printAllChild(TrieNode* t, deque<char> q)
 	q.push_back(t->alphabet);
 	if(t->value == 1 && t->child != 0)//last node
 	{
+		totoal_count++;
 		//print deque
 		deque<char> q1 = q;
 		while(!q1.empty())
@@ -151,6 +168,7 @@ void printAllChild(TrieNode* t, deque<char> q)
 	else if(t->value == 1)
 	{
 		int s = q.size();
+		totoal_count++;
 		for(int i =0 ; i<s ; i++ )
 		{
 			cout<<q.front()<<"-";
@@ -161,11 +179,43 @@ void printAllChild(TrieNode* t, deque<char> q)
 	}
 	printAllChild(t->child, q);
 	//deque<char> temp;
-	if(t->next != 0 && t->next->alphabet != '\0')
+	if(t->next != 0)// && t->next->alphabet != '\0')
 	{
 		q.pop_back();
 		printAllChild(t->next,q);
 	}
+}
+
+void printOnlyChilds(TrieNode* t, deque<char> q)
+{
+	if(!t)
+		return;
+	q.push_back(t->alphabet);
+	if(t->value == 1 && t->child != 0)//last node
+	{
+		totoal_count++;
+		//print deque
+		deque<char> q1 = q;
+		while(!q1.empty())
+		{
+			cout<<q1.front()<<"-";
+			q1.pop_front();
+		}
+		cout<<endl;
+	}
+	else if(t->value == 1)
+	{
+		int s = q.size();
+		totoal_count++;
+		for(int i =0 ; i<s ; i++ )
+		{
+			cout<<q.front()<<"-";
+			q.pop_front();
+		}
+		cout<<endl;
+		return;
+	}
+	printAllChild(t->child, q);
 }
 
 void display(TrieNode *t)
@@ -177,6 +227,47 @@ void display(TrieNode *t)
 	printAllChild(t->child,q);
 	//traverseNext(t->next);
 	//display(t->child->next);
+}
+
+
+void printAllPrefix(TrieNode *t,char keys[],deque<char> q)
+{
+	if(!t)
+		return;
+	if(keys[0] == '\0')
+		//printAllChild(t,q);
+		printOnlyChilds(t,q);
+	/*else if(keys[1] == '\0')
+	{
+		printAllChild(t,q);	
+		return;
+	}*/
+	TrieNode* node = sameLevelSearch(t,keys[0]);
+	if(!node)
+		return;
+	else{
+		q.push_back(node->alphabet);
+		/*if(keys[1] == '\0' && node->alphabet == keys[0])
+			printAllChild(node,q);
+		else
+			q.push_back(node->alphabet);*/
+		if(keys[1] == '\0')
+		{
+			q.pop_back();
+			printOnlyChilds(node,q);
+			return;
+		}
+		printAllPrefix(node->child,keys+1,q);	
+		//printAllPrefix(node,keys+1,q);	
+	}
+
+}
+
+void printPrefix(TrieNode* t, char keys[])
+{
+	deque<char> q;
+	totoal_count=0;
+	printAllPrefix(t->child,keys,q);
 }
 
 int isExsist(TrieNode* t, char keys[])
@@ -215,13 +306,27 @@ int main()
 	add(Trie,"rose");
 	add(Trie,"kerala");
 	add(Trie,"kerALA");
+	add(Trie,"s");
+	add(Trie,"ss");
+	add(Trie,"sss");
+	add(Trie,"ssss");
+	add(Trie,"sssss");
 	//print(Trie);
 	display(Trie);
-	if(isExsist(Trie,"shash"))
-		cout<<"shash Found"<<endl;
+	if(isExsist(Trie,"s"))
+		cout<<"s Found"<<endl;
 	else
 		cout<<"Not found\n";
 
+	cout<<"----------------s-------------------------"<<endl;
+	printPrefix(Trie,"s");
+	cout<<"Toatal->"<<totoal_count<<endl;
+	cout<<"----------------ss-------------------------"<<endl;
+	printPrefix(Trie,"ss");
+	cout<<"Toatal->"<<totoal_count<<endl;
+	cout<<"----------------sha-------------------------"<<endl;
+	printPrefix(Trie,"sha");
+	cout<<"Toatal->"<<totoal_count<<endl;
 }
 /*
 .-s-h-a-s-
