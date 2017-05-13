@@ -44,7 +44,7 @@ class AbstractFactoryForWidget{
 		virtual  Widget* createMenu()=0;
 		virtual Widget* createButton()=0;
 };
-
+//Widget Factory for iOS:
 class WidgetFactoryForiOS: public AbstractFactoryForWidget{
 	public:
 		Widget* createMenu()
@@ -58,6 +58,7 @@ class WidgetFactoryForiOS: public AbstractFactoryForWidget{
 };
 
 
+//Widget Factory for Android:
 class WidgetFactoryForAndroid: public AbstractFactoryForWidget{
 	public:
 		Widget* createMenu()

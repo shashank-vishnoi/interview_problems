@@ -26,18 +26,20 @@ void findSubArray(int a[], int size, int sum)
 			cout<<"===Found ["<<mymap[curr_sum]<<" to "<<i<<"]"<<endl;
 		else
 		{
-			if(mymap.find(curr_sum) == mymap.end())
+			if(mymap.find(curr_sum-sum) == mymap.end())
 			{
 				mymap[curr_sum]=i;
 			}else{
-				cout<<"Found ["<<mymap[curr_sum]+1<<" to "<<i<<"]"<<endl;
+				cout<<"Found ["<<mymap[curr_sum-sum]+1<<" to "<<i<<"]"<<endl;
 			}
 
 		}
 	}
+	for(map<int,int>::iterator it=mymap.begin(); it!=mymap.end(); it++)
+		cout<<it->first<<endl;
 }
 int main()
 {
-	int arr[]={1, 2, 3, -6, -10};
-	findSubArray(arr,sizeof(arr)/sizeof(int), 0);
+	int arr[]={10,-20,-10,50,30,10,40,-20};//{1, 2, 3, -6, -10};
+	findSubArray(arr,sizeof(arr)/sizeof(int), 120);
 }
